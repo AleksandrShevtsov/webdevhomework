@@ -72,9 +72,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 if env.bool('MYSQL', default=False):
-    DATABASES = env('DATABASE_MYSQL')
+    DATABASES = env('DATABASE_MYSQL', default={})
 else:
-    DATABASES = env('DATABASE_SQLite')
+    DATABASES = env('DATABASE_SQLite', default={})
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
