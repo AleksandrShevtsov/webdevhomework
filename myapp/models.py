@@ -1,7 +1,18 @@
 from django.db import models
 
 
-# Create your models here.
+class Category(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
+        unique_together = ('name',)
+
+
 class Task(models.Model):
     STATUS_CHOICES = [
         ('New', 'New'),
@@ -10,19 +21,21 @@ class Task(models.Model):
         ('Blocked', 'Blocked'),
         ('Done', 'Done'),
     ]
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField()
-    categories = models.ManyToManyField('Category', related_name='tasks')
+    categories = models.ManyToManyField(Category, related_name='tasks')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-class Category(models.Model):
-    name = models.CharField(max_length=255)
-
     def __str__(self):
-        return self.name
+        return self.title
+
+    class Meta:
+        db_table = 'task_manager_task'
+        ordering = ['-created_at']
+        verbose_name = 'Task'
+        unique_together = ('title',)
 
 
 class SubTask(models.Model):
@@ -33,9 +46,18 @@ class SubTask(models.Model):
         ('Blocked', 'Blocked'),
         ('Done', 'Done'),
     ]
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField()
-    task = models.ForeignKey(Task, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=Task.STATUS_CHOICES)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='subtasks')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        db_table = 'task_manager_subtask'
+        ordering = ['-created_at']
+        verbose_name = 'SubTask'
+        unique_together = ('title',)
