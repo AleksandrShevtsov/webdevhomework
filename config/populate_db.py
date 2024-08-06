@@ -1,96 +1,65 @@
 import os
 import django
-from django.utils import timezone
-import datetime
+from datetime import datetime
 
-# Настройка Django окружения
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-# Убедитесь, что указано правильное имя вашего проекта
 django.setup()
 
-# Импорт моделей
-from myapp.models import Category, Task, SubTask
+from myapp.models import Task, SubTask, Category
 
+# Создаем категории
+category_dev = Category.objects.create(name='Development')
+category_design = Category.objects.create(name='Design')
+category_devops = Category.objects.create(name='DevOps')
 
-def populate():
-    # Создание категорий
-    category1 = Category.objects.create(name="Work")
-    category2 = Category.objects.create(name="Personal")
-    category3 = Category.objects.create(name="Hobby")
+# Создаем задачи
+task1 = Task.objects.create(
+    title='Implement user authentication',
+    description='Add user authentication to the application using Django\'s built-in authentication system.',
+    status='New',
+    deadline=datetime(2024, 7, 15, 17, 0, 0)
+)
+task1.categories.set([category_dev])
 
-    print(f"Created categories: {category1}, {category2}, {category3}")
+task2 = Task.objects.create(
+    title='Design landing page',
+    description='Create a visually appealing landing page for the application.',
+    status='In progress',
+    deadline=datetime(2024, 7, 20, 18, 0, 0)
+)
+task2.categories.set([category_design])
 
-    # Создание задач
-    task1 = Task.objects.create(
-        title="Finish Django project",
-        description="Complete the Django project for the client",
-        status="In progress",
-        deadline=timezone.now() + datetime.timedelta(days=5),
-        created_at=timezone.now()
-    )
+task3 = Task.objects.create(
+    title='Setup CI/CD pipeline',
+    description='Configure a continuous integration and deployment pipeline using GitHub Actions.',
+    status='Pending',
+    deadline=datetime(2024, 7, 25, 19, 0, 0)
+)
+task3.categories.set([category_devops])
 
-    task2 = Task.objects.create(
-        title="Buy groceries",
-        description="Buy milk, bread, and eggs",
-        status="New",
-        deadline=timezone.now() + datetime.timedelta(days=1),
-        created_at=timezone.now()
-    )
+# Создаем подзадачи
+SubTask.objects.create(
+    title='Create login view',
+    description='Implement the view for user login.',
+    task=task1,
+    status='New',
+    deadline=datetime(2024, 7, 10, 15, 0, 0)
+)
 
-    task3 = Task.objects.create(
-        title="Paint the living room",
-        description="Paint the walls with the new color",
-        status="Pending",
-        deadline=timezone.now() + datetime.timedelta(days=7),
-        created_at=timezone.now()
-    )
+SubTask.objects.create(
+    title='Design wireframe',
+    description='Create a wireframe for the landing page design.',
+    task=task2,
+    status='In progress',
+    deadline=datetime(2024, 7, 12, 16, 0, 0)
+)
 
-    # Привязка категорий к задачам
-    task1.categories.add(category1)
-    task2.categories.add(category2)
-    task3.categories.add(category3)
+SubTask.objects.create(
+    title='Write deployment script',
+    description='Write a script to automate the deployment process.',
+    task=task3,
+    status='New',
+    deadline=datetime(2024, 7, 15, 17, 0, 0)
+)
 
-    print(f"Created tasks: {task1}, {task2}, {task3}")
-
-    # Создание подзадач
-    subtask1 = SubTask.objects.create(
-        title="Set up project structure",
-        description="Set up the initial project structure for the Django project",
-        task=task1,
-        status="Done",
-        deadline=timezone.now() + datetime.timedelta(days=2),
-        created_at=timezone.now()
-    )
-
-    subtask2 = SubTask.objects.create(
-        title="Write views",
-        description="Write the views for the project",
-        task=task1,
-        status="In progress",
-        deadline=timezone.now() + datetime.timedelta(days=4),
-        created_at=timezone.now()
-    )
-
-    subtask3 = SubTask.objects.create(
-        title="Go to the supermarket",
-        description="Visit the nearest supermarket to buy groceries",
-        task=task2,
-        status="New",
-        deadline=timezone.now() + datetime.timedelta(hours=6),
-        created_at=timezone.now()
-    )
-
-    subtask4 = SubTask.objects.create(
-        title="Choose paint color",
-        description="Choose the new color for the living room walls",
-        task=task3,
-        status="Pending",
-        deadline=timezone.now() + datetime.timedelta(days=3),
-        created_at=timezone.now()
-    )
-
-    print(f"Created subtasks: {subtask1}, {subtask2}, {subtask3}, {subtask4}")
-
-
-if __name__ == "__main__":
-    populate()
+print("Данные успешно добавлены!")
