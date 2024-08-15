@@ -21,21 +21,17 @@ def create_task(request):
 @api_view(['GET'])
 def list_tasks(request):
     tasks = Task.objects.all()
+    serializer = TaskSerializer(tasks, many=True)
+    return Response(serializer.data, status=HTTP_200_OK)
 
-    status = request.query_params.get('status')
-    if status:
-        tasks = tasks.filter(status=status)
 
-    deadline = request.query_params.get('deadline')
-    if deadline:
-        tasks = tasks.filter(deadline__lte=deadline)
 
-    paginator = PageNumberPagination()
-    paginator.page_size = 10
-    paginated_tasks = paginator.paginate_queryset(tasks, request)
+@api_view(['GET'])
+def task_details(request, pk):
+    task = Task.objects.get(pk=pk)
+    serializer = TaskSerializer(task)
+    return Response(serializer.data, status=HTTP_200_OK)
 
-    serializer = TaskSerializer(paginated_tasks, many=True)
-    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET'])
