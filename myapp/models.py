@@ -61,3 +61,4 @@ class SubTask(models.Model):
         ordering = ['-created_at']
         verbose_name = 'SubTask'
         unique_together = ('title',)
+
