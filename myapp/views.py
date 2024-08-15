@@ -1,3 +1,5 @@
+from django.db.models import *
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -34,3 +36,16 @@ def list_tasks(request):
 
     serializer = TaskSerializer(paginated_tasks, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['GET'])
+def task_stats(request):
+    total_tasks = Task.objects.count()
+    status_counts = Task.objects.values('status').annotate(count=Count('status'))
+    overdue_tasks = Task.objects.filter(deadline__lt=timezone.now(), status__in=['New', 'In progress']).count()
+
+    return Response({
+        'total_tasks': total_tasks,
+        'status_counts': status_counts,
+        'overdue_tasks': overdue_tasks
+    })
