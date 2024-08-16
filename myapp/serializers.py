@@ -33,11 +33,9 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         self.validate_name(validated_data.get('name'))
-        return Category.objects.create(validated_data)
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if Category.objects.filter(name=validated_data.get('name')).exists():
-            raise serializers.ValidationError("Категория с таким названием уже существует.")
-        instance.name = validated_data.get('name', instance.name)
-        instance.save()
-        return instance
+        if 'name' in validated_data and instance.name != validated_data['name']:
+            self.validate_name(validated_data.get('name'))
+        return super().update(instance, validated_data)
