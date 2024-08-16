@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db.models import *
 from django.utils import timezone
 from rest_framework.decorators import api_view
@@ -18,12 +19,21 @@ def create_task(request):
     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
+# Создайте эндпойнт для получения списка задач с фильтрацией по статусу и дедлайну. Реализуйте пагинацию результатов.
+#
+# Шаги для выполнения:
+#
+# Создайте представление для получения списка задач с фильтрами и пагинацией.
+#
+# Создайте маршрут для обращения к представлению.
 @api_view(['GET'])
 def list_tasks(request):
-    tasks = Task.objects.all()
-    serializer = TaskSerializer(tasks, many=True)
-    return Response(serializer.data, status=HTTP_200_OK)
-
+    tasks = Task.objects.filter(status__in=['New', 'In progress'], deadline__gt=timezone.now())
+    paginator = PageNumberPagination()
+    paginator.page_size = 2  # Количество элементов на странице
+    result_page = paginator.paginate_queryset(tasks, request)
+    serializer = TaskSerializer(result_page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET'])
@@ -31,7 +41,6 @@ def task_details(request, pk):
     task = Task.objects.get(pk=pk)
     serializer = TaskSerializer(task)
     return Response(serializer.data, status=HTTP_200_OK)
-
 
 
 @api_view(['GET'])
