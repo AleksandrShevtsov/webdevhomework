@@ -20,3 +20,24 @@ class SubTaskCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'status', 'deadline']
         read_only_fields = ['created_at']
 
+
+class CategoryCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name']
+
+    def validate_name(self, value):
+        if Category.objects.filter(name=value).exists():
+            raise serializers.ValidationError("Категория с таким названием уже существует.")
+        return value
+
+    def create(self, validated_data):
+        self.validate_name(validated_data.get('name'))
+        return Category.objects.create(validated_data)
+
+    def update(self, instance, validated_data):
+        if Category.objects.filter(name=validated_data.get('name')).exists():
+            raise serializers.ValidationError("Категория с таким названием уже существует.")
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        return instance
