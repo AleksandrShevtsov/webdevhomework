@@ -2,11 +2,24 @@ from rest_framework import serializers
 from .models import Task, SubTask, Category
 
 
+class SubTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubTask
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at']
+
+
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'status', 'deadline']
 
+
+class TaskDetailSerializer(serializers.ModelSerializer):
+    subtasks = SubTaskSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'subtasks']
 
 class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +52,6 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
         if 'name' in validated_data and instance.name != validated_data['name']:
             self.validate_name(validated_data.get('name'))
         return super().update(instance, validated_data)
+
+
+class Ta
