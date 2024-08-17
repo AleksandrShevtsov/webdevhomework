@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from .models import Task, SubTask, Category
 
@@ -25,6 +26,10 @@ class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         exclude = ['created_at']
+    def validate_deadline(self, value):
+        if value < timezone.now():
+            raise serializers.ValidationError("Нельзя задать дедлайн в прошлом.")
+        return value
 
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
@@ -53,5 +58,3 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
             self.validate_name(validated_data.get('name'))
         return super().update(instance, validated_data)
 
-
-class Ta
