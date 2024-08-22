@@ -11,24 +11,25 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
-import environ
-
-env = environ.Env()
-environ.Env.read_env()
+from environ import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = Env()
+Env.read_env(BASE_DIR / '.env')
 
-SECRET_KEY = env('SECRET_KEY')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env.str('SECRET_KEY')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 DEBUG = env.bool('DEBUG', default=False)
-
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'myapp.pagination.GlobalPageNumberPagination',
     'PAGE_SIZE': 10,  # Количество задач на одной странице
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',

@@ -1,14 +1,14 @@
+from django.contrib.admin import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from .models import Task, SubTask, Category
+from rest_framework.viewsets import ModelViewSet
+
 from .serializers import *
 
 
-class TaskListCreateView(ListCreateAPIView):
+class TaskViewSet(ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -17,12 +17,7 @@ class TaskListCreateView(ListCreateAPIView):
     ordering = ['-created_at']
 
 
-class TaskDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    queryset = Task.objects.all()
-    serializer_class = TaskSerializer
-
-
-class SubTaskListCreateView(ListCreateAPIView):
+class SubTaskViewSet(ModelViewSet):
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -31,7 +26,18 @@ class SubTaskListCreateView(ListCreateAPIView):
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
+    @action()
+    def count_subtasks(self, request, pk=None):
+        task = self.get_object()
+        subtask_count = task.subtasks.count()
+        return Response({'count': subtask_count})
 
-class SubTaskDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
-    queryset = SubTask.objects.all()
-    serializer_class = SubTaskSerializer
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    @action()
+    def count_tasks(self, request, pk=None):
+        category = self.get_object()
+        task_count = category.tasks.count()
+        return Response({'count': task_count})
