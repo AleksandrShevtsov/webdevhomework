@@ -2,6 +2,7 @@ from django.contrib.admin import action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -9,6 +10,7 @@ from myapp.serializers import *
 
 
 class TaskViewSet(ModelViewSet):
+    permission_classes = [AllowAny]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -18,6 +20,7 @@ class TaskViewSet(ModelViewSet):
 
 
 class SubTaskViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -33,6 +36,7 @@ class SubTaskViewSet(ModelViewSet):
         return Response({'count': subtask_count})
 
 class CategoryViewSet(ModelViewSet):
+    permission_classes = [IsAdminUser]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
