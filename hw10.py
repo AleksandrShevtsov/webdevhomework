@@ -74,7 +74,7 @@ print(30 * '-')
 subtask2 = SubTask.objects.get(title="Create slides")
 subtask2.description = "Create and format presentation slides"
 subtask2.save()
-print("изменен описание для Create slides на", subtask2.description)
+print("изменено описание для Create slides на", subtask2.description)
 print(30 * '-')
 
 # Удалить задачу "Prepare presentation" и все ее подзадачи
