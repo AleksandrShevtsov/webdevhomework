@@ -5,7 +5,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from .serializers import *
+from myapp.serializers import *
 
 
 class TaskViewSet(ModelViewSet):
