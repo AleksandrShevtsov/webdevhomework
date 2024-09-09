@@ -6,21 +6,31 @@ from rest_framework.permissions import IsAdminUser, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from myapp.permissions import IsOwner
 from myapp.serializers import *
 
 
 class TaskViewSet(ModelViewSet):
-    permission_classes = [AllowAny]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['status', 'deadline']
     ordering_fields = ['created_at']
     ordering = ['-created_at']
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    @action()
+    def my_tasks(self, request):
+        tasks = self.get_queryset().filter(owner=request.user)
+        serializer = self.get_serializer(tasks, many=True)
+        return Response(serializer.data)
+
 
 class SubTaskViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
@@ -34,6 +44,9 @@ class SubTaskViewSet(ModelViewSet):
         task = self.get_object()
         subtask_count = task.subtasks.count()
         return Response({'count': subtask_count})
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class CategoryViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]

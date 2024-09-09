@@ -82,16 +82,19 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
 
 class SubTaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = SubTask
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'created_at', 'task', 'owner']
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
     subtasks = SubTaskSerializer(many=True, read_only=True)
+
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'deadline', 'subtasks', 'created_at']
+        fields = ['id', 'title', 'description', 'status', 'deadline', 'subtasks', 'created_at', 'owner']
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):

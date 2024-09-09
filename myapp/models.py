@@ -4,7 +4,6 @@ from django.db import models
 from django.contrib.auth.models import UserManager, PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 
-
 class User(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(
         _("username"),
@@ -52,18 +51,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.last_name} {self.first_name}"
 
-class Category(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = 'task_manager_category'
-        verbose_name = 'Category'
-        unique_together = ('name',)
-
-
 class Task(models.Model):
     STATUS_CHOICES = [
         ('New', 'New'),
@@ -79,6 +66,7 @@ class Task(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tasks', null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -88,7 +76,6 @@ class Task(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Task'
         unique_together = ('title',)
-
 
 class SubTask(models.Model):
     STATUS_CHOICES = [
@@ -104,6 +91,7 @@ class SubTask(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     deadline = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subtasks', null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -114,3 +102,13 @@ class SubTask(models.Model):
         verbose_name = 'SubTask'
         unique_together = ('title',)
 
+class Category(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'task_manager_category'
+        verbose_name = 'Category'
+        unique_together = ('name',)
